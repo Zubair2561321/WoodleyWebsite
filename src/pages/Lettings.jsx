@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Header from "../Section/Header";
 import Footer from "../Section/Footer";
 import { get_website } from "../DAL/customapi";
@@ -9,16 +9,65 @@ const Lettings = () => {
   const [inputs, setInputs] = useState({});
   const [dataList, setDataList] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const resultsRef = useRef(null);
+  const [filteredProperties, setFilteredProperties] = useState([]);
+  const [filters, setFilters] = useState({
+    category: "",
+    propertyType: "",
+    minBeds: "",
+    minPrice: "",
+    maxPrice: "",
+  });
 
   const get_website_content = async () => {
     setIsLoading(true);
     const result = await get_website();
     if (result.code == 200) {
       setInputs(result.webpage_content.website_content);
+      setFilteredProperties(result?.properties);
       setDataList(result);
       setIsLoading(false);
     } else {
       setIsLoading(false);
+    }
+  };
+
+  const handleFilterChange = (e) => {
+    const { id, value } = e.target;
+    console.log(id, value, "id, valueid, value");
+    setFilters({ ...filters, [id]: value });
+  };
+
+  const handleSearchClick = () => {
+    let filtered = dataList.properties;
+    console.log("first");
+    if (filters.category) {
+      filtered = filtered.filter((item) => item.category === filters.category);
+    }
+    if (filters.propertyType) {
+      filtered = filtered.filter(
+        (item) => item.property_type === filters.propertyType
+      );
+    }
+    if (filters.minBeds) {
+      filtered = filtered.filter(
+        (item) => item.total_beds >= parseInt(filters.minBeds, 10)
+      );
+    }
+    if (filters.minPrice) {
+      filtered = filtered.filter(
+        (item) => item.min_price >= parseInt(filters.minPrice, 10)
+      );
+    }
+    if (filters.maxPrice) {
+      filtered = filtered.filter(
+        (item) => item.max_price <= parseInt(filters.maxPrice, 10)
+      );
+    }
+
+    setFilteredProperties(filtered);
+    if (resultsRef.current) {
+      resultsRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -63,10 +112,13 @@ const Lettings = () => {
                       {" "}
                       Select Category{" "}
                     </span>
-                    <select className="form-control" id="propertytype">
-                      <option selected="" value="43|45">
-                        Sales
-                      </option>
+                    <select
+                      className="form-control"
+                      id="category"
+                      value={filters.category}
+                      onChange={handleFilterChange}
+                    >
+                      <option value="">Select Category</option>
                       {dataList?.services.map((item, index) => {
                         return (
                           <option key={index} value={index}>
@@ -81,9 +133,11 @@ const Lettings = () => {
                   <div className="col  col_33">
                     <div id="property_type_outer">
                       <select
-                        id="filter_attribute_1"
-                        name="filter_attribute[categorical][1]"
+                        id="propertyType"
                         className="field_item  drop-down form-control "
+                        name="propertyType"
+                        value={filters.propertyType}
+                        onChange={handleFilterChange}
                       >
                         <option value="">Choose Property Type</option>
                         {dataList?.property_types.map((item, index) => {
@@ -97,56 +151,65 @@ const Lettings = () => {
                     </div>
                   </div>
                 )}
-                <div className="col  col_33">
-                  <select
-                    className="form-control"
-                    id="min-beds"
-                    name="filter_attribute[numeric][2][min]"
-                  >
-                    <option value="" selected="selected">
-                      Min Beds
-                    </option>
-                    <option value={1}>1</option>
-                    <option value={2}>2</option>
-                  </select>
-                </div>
-                <div className="col  col_33">
-                  <select
-                    className="form-control"
-                    id="min_price"
-                    name="min_price"
-                  >
-                    <option className="" value="" selected="">
-                      Min Price
-                    </option>
-                    <option className="sale-price" value={50000}>
-                      £50,000
-                    </option>
-                    <option className="sale-price" value={60000}>
-                      £60,000
-                    </option>
-                  </select>
-                </div>
-                <div className="col  col_33">
-                  <select
-                    className="form-control"
-                    id="max-price"
-                    name="max_price"
-                  >
-                    <option className="" value="" selected="">
-                      Max Price
-                    </option>
-                    <option className="sale-price" value={50000}>
-                      £50,000
-                    </option>
-                  </select>
-                </div>
+                {dataList?.properties.length > 0 && (
+                  <div className="col  col_33">
+                    <select
+                      className="form-control"
+                      id="minBeds"
+                      name="minBeds"
+                      value={filters.minBeds}
+                      onChange={handleFilterChange}
+                    >
+                      <option value="">Min Beds</option>
+                      {dataList?.properties.map((item, index) => (
+                        <option key={index} value={item.total_beds}>
+                          {item.total_beds}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {dataList?.properties.length > 0 && (
+                  <div className="col  col_33">
+                    <select
+                      className="form-control"
+                      id="minPrice"
+                      name="minPrice"
+                      value={filters.minPrice}
+                      onChange={handleFilterChange}
+                    >
+                      <option value="">Min Price</option>
+                      {dataList?.properties.map((item, index) => (
+                        <option key={index} value={item.min_price}>
+                          £{item.min_price}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {dataList?.properties.length > 0 && (
+                  <div className="col  col_33">
+                    <select
+                      className="form-control"
+                      id="maxPrice"
+                      name="maxPrice"
+                      value={filters.maxPrice}
+                      onChange={handleFilterChange}
+                    >
+                      <option value="">Max Price</option>
+                      {dataList?.properties.map((item, index) => (
+                        <option key={index} value={item.max_price}>
+                          £{item.max_price}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 <div className="col  col_33">
                   <a
-                    href="javascript:;"
                     className="search cmn_btn hover btn"
-                    onclick="submit_search_form();"
                     style={{ width: "100%" }}
+                    onClick={handleSearchClick}
                   >
                     {" "}
                     Search Property
@@ -164,40 +227,17 @@ const Lettings = () => {
               <h1 className="title_sec animate animate--fade-down animate--start">
                 Lettings
               </h1>
-              <div className="arrow_pagination" style={{ padding: "28px 0" }}>
-                <a className="col arrow_bg arrow_bg_right" href="javascript:;">
-                  <i className="arrow left" />
-                  <div className="img_overlay" />
-                </a>
-                <a
-                  className="col arrow_bg arrow_bg_left active"
-                  href="javascript:;"
-                  onclick="go_to_properties_list_page(2)"
-                >
-                  <i className="arrow right" />
-                </a>
-              </div>
-            </div>
-            <div className="right_sec views">
-              <div className="co_col co_col_100 search_result">
-                Search results: <span id="cout">1 - 12 of 93 Properties </span>
-              </div>
-              <br />
-              <a className="active" href="javascript:;" onclick="viewtype(1)">
-                <i className="icon gnbicon-grid grid_icon_sept" /> &nbsp; Grid
-                View
-              </a>
-              <a className="" href="javascript:;" onclick="viewtype(2)">
-                <i className="icon gnbicon-list grid_icon_sept" /> &nbsp; List
-                View
-              </a>
             </div>
           </div>
         </div>
-        <div className="as_container " style={{ marginTop: 40 }}>
+        <div
+          className="as_container "
+          style={{ marginTop: 40 }}
+          ref={resultsRef}
+        >
           <div className="row justify-content-center">
-            {dataList?.properties.length > 0 &&
-              dataList?.properties.map((item, index) => {
+            {filteredProperties.length > 0 &&
+              filteredProperties.map((item, index) => {
                 return (
                   <div className="col-12 col-md-4 mt-3" key={index}>
                     <div className="col feature_div bg_fff float_left">

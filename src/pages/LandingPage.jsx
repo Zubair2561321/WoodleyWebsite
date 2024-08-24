@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Header from "../Section/Header";
 import Footer from "../Section/Footer";
 import { get_website } from "../DAL/customapi";
@@ -9,6 +9,15 @@ const LandingPage = () => {
   const [inputs, setInputs] = useState({});
   const [dataList, setDataList] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const resultsRef = useRef(null);
+  const [filteredProperties, setFilteredProperties] = useState([]);
+  const [filters, setFilters] = useState({
+    category: "",
+    propertyType: "",
+    minBeds: "",
+    minPrice: "",
+    maxPrice: "",
+  });
 
   const get_website_content = async () => {
     setIsLoading(true);
@@ -16,9 +25,48 @@ const LandingPage = () => {
     if (result.code == 200) {
       setInputs(result.webpage_content.website_content);
       setDataList(result);
+      setFilteredProperties(result?.properties);
       setIsLoading(false);
     } else {
       setIsLoading(false);
+    }
+  };
+
+  const handleFilterChange = (e) => {
+    const { id, value } = e.target;
+    setFilters({ ...filters, [id]: value });
+  };
+
+  const handleSearchClick = () => {
+    let filtered = dataList.properties;
+
+    if (filters.category) {
+      filtered = filtered.filter((item) => item.category === filters.category);
+    }
+    if (filters.propertyType) {
+      filtered = filtered.filter(
+        (item) => item.property_type === filters.propertyType
+      );
+    }
+    if (filters.minBeds) {
+      filtered = filtered.filter(
+        (item) => item.total_beds >= parseInt(filters.minBeds, 10)
+      );
+    }
+    if (filters.minPrice) {
+      filtered = filtered.filter(
+        (item) => item.min_price >= parseInt(filters.minPrice, 10)
+      );
+    }
+    if (filters.maxPrice) {
+      filtered = filtered.filter(
+        (item) => item.max_price <= parseInt(filters.maxPrice, 10)
+      );
+    }
+
+    setFilteredProperties(filtered);
+    if (resultsRef.current) {
+      resultsRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -72,92 +120,96 @@ const LandingPage = () => {
                         display: "none",
                       }}
                     >
-                      {" "}
                       Select Category
                     </span>
-                    <select className="form-control" id="propertytype">
-                      <option selected="" value="">
-                        Select Category
-                      </option>
-                      {dataList?.services.map((item, index) => {
-                        return (
-                          <option key={index} value={index}>
-                            {item.title}
-                          </option>
-                        );
-                      })}
+                    <select
+                      className="form-control"
+                      id="category"
+                      value={filters.category}
+                      onChange={handleFilterChange}
+                    >
+                      <option value="">Select Category</option>
+                      {dataList?.services.map((item, index) => (
+                        <option key={index} value={item.title}>
+                          {item.title}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 )}
                 {dataList.property_types.length > 0 && (
                   <div className="search_form_item">
-                    <div id="property_type_outer">
-                      <select
-                        id="filter_attribute_1"
-                        name="filter_attribute[categorical][1]"
-                        className="field_item  drop-down form-control "
-                      >
-                        <option value="">Choose Property Type</option>
-                        {dataList?.property_types.map((item, index) => {
-                          return (
-                            <option key={index} value={index}>
-                              {item.title}
-                            </option>
-                          );
-                        })}
-                      </select>{" "}
-                    </div>
+                    <select
+                      id="propertyType"
+                      name="propertyType"
+                      className="form-control"
+                      value={filters.propertyType}
+                      onChange={handleFilterChange}
+                    >
+                      <option value="">Choose Property Type</option>
+                      {dataList?.property_types.map((item, index) => (
+                        <option key={index} value={item.title}>
+                          {item.title}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 )}
-                <div className="search_form_item">
-                  <select
-                    className="form-control"
-                    id="min-beds"
-                    name="filter_attribute[numeric][2][min]"
-                  >
-                    <option value="" selected="selected">
-                      Min Beds
-                    </option>
-                    <option value={1}>1</option>
-                    <option value={2}>2</option>
-                  </select>
-                </div>
-                <div className="search_form_item">
-                  <select
-                    className="form-control"
-                    id="min_price"
-                    name="min_price"
-                  >
-                    <option value="" selected="selected">
-                      Min Price
-                    </option>
-
-                    <option className="rent-price" value={50}>
-                      £50
-                    </option>
-                    <option className="rent-price" value={100}>
-                      £100
-                    </option>
-                  </select>
-                </div>
-                <div className="search_form_item">
-                  <select
-                    className="form-control"
-                    id="max-price"
-                    name="max_price"
-                  >
-                    <option className="" value="" hidden="">
-                      Max Price
-                    </option>
-                    <option className="rent-price" value={50}>
-                      £50
-                    </option>
-                    <option className="rent-price" value={100}>
-                      £100
-                    </option>
-                  </select>
-                </div>
-                <div className="search_form_item">
+                {dataList?.properties.length > 0 && (
+                  <div className="search_form_item">
+                    <select
+                      className="form-control"
+                      id="minBeds"
+                      name="minBeds"
+                      value={filters.minBeds}
+                      onChange={handleFilterChange}
+                    >
+                      <option value="">Min Beds</option>
+                      {dataList?.properties.map((item, index) => (
+                        <option key={index} value={item.total_beds}>
+                          {item.total_beds}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {dataList?.properties.length > 0 && (
+                  <div className="search_form_item">
+                    <select
+                      className="form-control"
+                      id="minPrice"
+                      name="minPrice"
+                      value={filters.minPrice}
+                      onChange={handleFilterChange}
+                    >
+                      <option value="">Min Price</option>
+                      {dataList?.properties.map((item, index) => (
+                        <option key={index} value={item.min_price}>
+                          £{item.min_price}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {dataList?.properties.length > 0 && (
+                  <div className="search_form_item">
+                    <select
+                      className="form-control"
+                      id="maxPrice"
+                      name="maxPrice"
+                      value={filters.maxPrice}
+                      onChange={handleFilterChange}
+                    >
+                      <option value="">Max Price</option>
+                      {dataList?.properties.map((item, index) => (
+                        <option key={index} value={item.max_price}>
+                          £{item.max_price}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <div className="search_form_item" onClick={handleSearchClick}>
                   <a className="search cmn_btn hover btn">Search Property</a>
                 </div>
               </div>
@@ -198,10 +250,11 @@ const LandingPage = () => {
             dataList?.services.map((item, index) => {
               return (
                 <div
-                  className="col col_50 animate animate--fade-right animate--start"
+                  className="col col_50 animate animate--fade-right animate--start "
                   key={index}
                 >
                   <div
+                    ref={resultsRef}
                     className="quick_access_img col pull-left first-sec"
                     style={{
                       backgroundImage: `url(${s3BaseUrl + item.image})`,
@@ -247,9 +300,8 @@ const LandingPage = () => {
           style={{ marginTop: 20, display: "block" }}
         >
           <div className="row justify-content-center">
-            {dataList?.properties.length > 0 &&
-              dataList?.properties.map((item, index) => {
-                console.log(s3BaseUrl + item.images[0].image);
+            {filteredProperties.length > 0 &&
+              filteredProperties.map((item, index) => {
                 return (
                   <div className="col-12 col-md-4 mt-3" key={index}>
                     <div className="col feature_div bg_fff float_left">

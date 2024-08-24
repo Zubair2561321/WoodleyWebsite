@@ -26,7 +26,6 @@
     "prod": "set REACT_APP_ENV=prod&& set PORT=3000 && react-scripts start",
     "dev": "set REACT_APP_ENV=dev&& set PORT=3000 && react-scripts start",
     "dev-build": "set REACT_APP_ENV=dev && react-scripts build",
-    "build": "react-scripts build",
     "prod-build": "set REACT_APP_ENV=prod && react-scripts build"
   },
   "eslintConfig": {
