@@ -32,8 +32,8 @@ const Header = ({ data }) => {
                 <div>
                   <a href="mailto:sales@woodleysestateagents.com">
                     {" "}
-                    <i className="fa fa-envelope" />{" "}
-                    sales@woodleysestateagents.com
+                    <i className="fa fa-envelope" />
+                    Sales@pioneers-residentialCo.uk
                   </a>
                 </div>
               </div>
