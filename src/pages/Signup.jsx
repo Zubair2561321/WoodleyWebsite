@@ -119,14 +119,14 @@ const Signup = () => {
               <div className="form-group">
                 <label htmlFor="fg_email">Password *</label>
                 <input
-                  type="text"
+                  type="password"
                   className="form-control form-control-lg rounded-0"
                   name="password"
                   value={input.password}
                   onChange={handleChange}
                   id="phone_number"
                   required=""
-                  placeholder="Enter mobile number"
+                  placeholder="Enter Password"
                 />
               </div>
               <div>

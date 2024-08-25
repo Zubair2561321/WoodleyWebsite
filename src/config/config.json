@@ -1,11 +1,11 @@
 {
   "dev": {
-    "API_BASE_URL": "http://188.166.198.20:1300/",
+    "REACT_APP_BASE_URL": "http://188.166.198.20:1300/",
     "API_BASE_KEY": "",
     "PIC_BASE_URL": "http://188.166.198.20:1300/"
   },
   "prod": {
-    "API_BASE_URL": "http://188.166.198.20:1300/",
+    "REACT_APP_BASE_URL": "http://188.166.198.20:1300/",
     "API_BASE_KEY": "",
     "PIC_BASE_URL": "http://188.166.198.20:1300/"
   }

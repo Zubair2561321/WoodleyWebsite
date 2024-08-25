@@ -11,9 +11,9 @@ const Header = ({ data }) => {
   const navigate = useNavigate();
 
   const handleNavigate = (value) => {
-    if (localStorage.getItem("user")) {
-      localStorage.removeItem("user");
-    }
+    // if (localStorage.getItem("user") !==null || ) {
+    //   localStorage.removeItem("user");
+    // }
     navigate(value);
   };
   return (
