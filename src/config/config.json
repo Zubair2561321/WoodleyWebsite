@@ -2,11 +2,11 @@
   "dev": {
     "REACT_APP_BASE_URL": "https://api.pioneers-residential.co.uk/",
     "API_BASE_KEY": "",
-    "PIC_BASE_URL": "http://188.166.198.20:1300/"
+    "PIC_BASE_URL": "https://api.pioneers-residential.co.uk/"
   },
   "prod": {
     "REACT_APP_BASE_URL": "https://api.pioneers-residential.co.uk/",
     "API_BASE_KEY": "",
-    "PIC_BASE_URL": "http://188.166.198.20:1300/"
+    "PIC_BASE_URL": "https://api.pioneers-residential.co.uk/"
   }
 }
